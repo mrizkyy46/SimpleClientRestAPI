@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Request</title>
+
+    <!-- TailwindCSS -->
+    <script src="script.js"></script>
+
+</head>
+
+<body class="container px-6 py-6">
+    <div>
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0 pb-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Request API</h3>
+                    <p class="mt-1 text-sm text-gray-600">Input URL, Request body for request an API.</p>
+                </div>
+                <div class="px-4 sm:px-0 py-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">History</h3>
+                    <p class="mt-1 text-sm text-gray-600">History request REST API</p>
+                </div>
+            </div>
+            <div class="mt-5 md:mt-0 md:col-span-2">
+                <form action="" method="post" id="formRequest">
+                    <div class="shadow sm:rounded-md sm:overflow-hidden px-4 py-5 bg-white space-y-6 sm:p-4">
+                        <div class="relative z-0 w-full mb-6 group">
+                            <input type="text" name="url" id="url"
+                                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                placeholder="" required="" value="">
+                            <label for="url"
+                                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">URL
+                            </label>
+                        </div>
+                        <div class="relative z-0 w-full mb-6 group">
+                            <textarea type="text" name="reqbody" id="reqbody" rows="10"
+                                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                placeholder=" " required=""></textarea>
+                            <label for="reqbody"
+                                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Request
+                                Body</label>
+                        </div>
+                        <div class="relative z-0 w-full mb-6 group">
+                            <textarea type="text" name="result" id="result" rows="10" readonly
+                                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                placeholder=" " required=""></textarea>
+                            <label for="result"
+                                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Result</label>
+                        </div>
+                        <button type="button" id="btnSubmit"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+                        <button type="button" id="btnClear"
+                            class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Clear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#url").val(localStorage.getItem("url"));
+            $("#reqbody").val(localStorage.getItem("reqbody"));
+
+            $("#btnClear").click(function (e) {
+                e.preventDefault();
+                $("#result").val("");
+            });
+
+            $("#btnSubmit").click(function (e) {
+                e.preventDefault();
+
+                if (localStorage.getItem("url") != $("#url").val() || localStorage.getItem("url") === null) {
+                    let url = $("#url").val();
+                    localStorage.setItem("url", JSON.stringify(url));
+                }
+
+                if (localStorage.getItem("reqbody") != $("#reqbody").val() || localStorage.getItem("reqbody") === null) {
+                    let reqbody = $("#reqbody").val();
+                    localStorage.setItem("reqbody", JSON.stringify(reqbody));
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "request.php",
+                    data: $('#formRequest').serialize(),
+                    success: function (response, status, xhr) {
+                        try {
+                            let parseJSON = JSON.parse(response);
+                            let JSONInPrettyFormat = JSON.stringify(parseJSON, undefined, 4);
+                            $("#result").val(JSONInPrettyFormat);
+                        } catch (error) {
+                            $("#result").val(response);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
